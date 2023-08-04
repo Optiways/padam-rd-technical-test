@@ -1,5 +1,6 @@
 from input import parse_cmd_line, parse_file
 from graph import Graph
+from functions import display_nxgraph
 
 
 def main():
@@ -9,7 +10,7 @@ def main():
     graph = Graph(vertices, edges)
     if plot_graph:
         graph.plot()
-
+        display_nxgraph(graph)
 
 if __name__ == "__main__":
     main()
