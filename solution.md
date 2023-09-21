@@ -1,13 +1,13 @@
-﻿\# R&D Test
+﻿# R&D Test
 
-\## Solution Lisa HAUSCARRIAGUE
+## Solution Lisa HAUSCARRIAGUE
 
-\## Projet setup
+## Projet setup
 
 - The file 'modif\_main.py' should be run by 'python main.py -i island.txt -p'
 - The file 'prim\_algo.py' contains all the function to solve the problem
 
-\## Presentation of the solution
+## Presentation of the solution
 
 The aim is to compute a path which travels each edge at least one time at minimum cost (the cost is the weight on the edges)
 
@@ -24,12 +24,12 @@ I will present my solution step by step :
 
 `	`- if no edge exists, it means that I cannot connect more vertices to the subset S, so I create a new separated group of node. I add an arbitrary node from 'List\_node' to S and I restrat the process.
 
-\## Issues encountered
+## Issues encountered
 
 - In the file island.txt, all the nodes cannot be connected. That's why I decided to connect the maximum of vertices when it is possible, even if it's creating more groups.
-- I have a high complexity. The code is fast for 'island.txt' and for 'hard\_to\_choose.txt'. But it takes 01:45:54 (1 hour 45 min!!) for 'paris\_map.txt' with a huge number a vertices and edges.
+- I have a high complexity. The code is fast for 'island.txt' and for 'hard\_to\_choose.txt'. But it takes very long time for 'paris\_map.txt' with a huge number a vertices and edges.
 
-\## ToDo
+## ToDo
 
 - Reduce the complexity
 - Plot the graph with different colors for separated group of vertices
