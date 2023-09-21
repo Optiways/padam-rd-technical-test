@@ -27,8 +27,6 @@ def Prim(vertices: list[tuple], edges: list[tuple])->list[tuple]:
     id2=set(edge[1] for edge in edges)
     List_node=list(id1 | id2)
     
-    #print("the list of the nodes is ",List_node)
-    #print("n is",n)
     "Put one node in S and delete it from the list of the nodes"
     u=List_node[0]
     List_node.remove(u)
@@ -46,34 +44,23 @@ def Prim(vertices: list[tuple], edges: list[tuple])->list[tuple]:
     
     
     edges=Sort(edges)
-    #print("sorted edges is", edges)
     
     while len(List_node)>0:
         "while all the points are not connected"
-        #print("S is ",S)
-        print("len de S is",len(S))
-        #print("List_node is ",List_node)
-        print("len of List_node is",len(List_node))
-        #print("len of T is",len(T))
-        #print("T is ",T)
-        
+      
         
         "Find the next point to connect at minimum cost"
         edgemin, edges, index_new_node =Edge_Min_Cost(S,edges)
-        #print("edgemin is", edgemin)
-        #print("the new index is", index_new_node)
         
         if index_new_node<2:
             "there exist at least one point to connect to S"
             T.append(edgemin)
             S.append(edgemin[index_new_node])
             List_node.remove(edgemin[index_new_node])
-            "mettre l'indice dans l'autre fonction"
         else :
             "There is no more point to connect, so take another group of points that cannot be connected"
             u=List_node[0]
             List_node.remove(u)
-            #S.append(u)
             "we know that no more node can be connected, so to avoid to go over the whole S, we restart it as a new set of nodes"
             S=[u]
     return T
