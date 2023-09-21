@@ -4,7 +4,7 @@
 
 ## Projet setup
 
-- The file 'modif\_main.py' should be run by 'python main.py -i island.txt -p'
+- The file 'modif\_main.py' should be run by 'python modif\_main.py -i island.txt -p'
 - The file 'prim\_algo.py' contains all the function to solve the problem
 
 ## Presentation of the solution
