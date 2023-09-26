@@ -43,6 +43,7 @@ def parse_file(file_name: str) -> tuple[list[tuple], list[tuple]]:
     with open(file_name, "r") as file:
         lines = file.readlines()
     vertices, edges = [], []
+    vertices_degree = {}
     for i, line in enumerate(lines):
         if i == 0:
             continue
@@ -55,5 +56,14 @@ def parse_file(file_name: str) -> tuple[list[tuple], list[tuple]]:
             coordinates_1 = vertices[vertex_1]
             coordinates_2 = vertices[vertex_2]
             edges.append((vertex_1, vertex_2, weight, coordinates_1, coordinates_2))
+            
+            if vertex_1 not in vertices_degree:
+                vertices_degree[vertex_1] = 1
+            else: 
+                vertices_degree[vertex_1]+=1
+            if vertex_2 not in vertices_degree:
+                vertices_degree[vertex_2] = 1
+            else: 
+                vertices_degree[vertex_2]+=1
 
-    return vertices, edges
+    return vertices, edges, vertices_degree
