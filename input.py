@@ -38,11 +38,12 @@ def parse_file(file_name: str) -> tuple[list[tuple], list[tuple]]:
     Returns
     -------
     tuple[list[tuple], list[tuple]]
-        list of vertices coordinates, list of edges as tuple (id 1, id 2, weight, coordinates 1, coordinates 2).
+        list of vertices coordinates, list of edges as tuple (idEdge, id 1, id 2, weight, coordinates 1, coordinates 2).
     """
     with open(file_name, "r") as file:
         lines = file.readlines()
     vertices, edges = [], []
+    idEdge = 0
     for i, line in enumerate(lines):
         if i == 0:
             continue
@@ -54,6 +55,9 @@ def parse_file(file_name: str) -> tuple[list[tuple], list[tuple]]:
             weight = int(splitted_line[2])
             coordinates_1 = vertices[vertex_1]
             coordinates_2 = vertices[vertex_2]
-            edges.append((vertex_1, vertex_2, weight, coordinates_1, coordinates_2))
+            
+            ## adding an id for each edge to simplify further computation
+            edges.append((idEdge, vertex_1, vertex_2, weight, coordinates_1, coordinates_2))
+            idEdge += 1
 
     return vertices, edges
