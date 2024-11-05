@@ -16,6 +16,7 @@ class Graph:
         self.vertices = vertices
         self.edges = edges
 
+
     def plot(self):
         """
         Plot the graph.
@@ -30,3 +31,29 @@ class Graph:
         ax.legend()
         plt.title(f"#E={len(self.edges)}, #V={len(self.vertices)}")
         plt.show()
+
+
+    def build_neighbors(self) -> dict[[tuple], list[tuple]]:
+        """
+        Create a dictionary with the list of neighbors of each vertex.
+
+        Returns
+        -------
+        dict[[tuple], list[tuple]]
+            dictionary that associate to each vertex its list of neighbors
+            {
+                (vertex1_coordinate_x, vertex1_coordinate_y):
+                    [(neighbor1_coordinate_x, neighbor2_coordinate_y), (neighbor2_coordinate_x, neighbor2_coordinate_y), ...],
+                ...
+            }
+        """
+        # Initialiser un dictionnaire pour les voisins avec chaque sommet ayant une liste vide au départ
+        neighbors = {vertex: [] for vertex in self.vertices}
+        
+        # Ajouter les voisins pour chaque arête
+        for edge in self.edges:
+            id1, id2, weight, coord1, coord2 = edge
+            neighbors[coord1].append(coord2)
+            neighbors[coord2].append(coord1)
+
+        return neighbors
