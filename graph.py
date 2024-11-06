@@ -49,7 +49,7 @@ class Graph:
         ax.legend()
         plt.title(f"#E={len(self.edges)}, #V={len(self.vertices)}")
         plt.show()
-    
+
 
     def select_vertex_max_edges(self) -> int:
         """
@@ -62,7 +62,7 @@ class Graph:
         non_zeros_mask = self.weights_matrix != 0
         numbers_of_edges = np.sum(non_zeros_mask, axis=1)
         return np.argmax(numbers_of_edges)
-    
+
 
     def get_nearest_neighbor(self,
                      vertex : int) -> int:
@@ -85,16 +85,18 @@ class Graph:
                                  if (vertex,j) not in self.visited_edges
                                     and (j, vertex) not in self.visited_edges
                                     and vertex_weights_edges[j]!=0]
+
         if unvisited_neighbors:
             # if there are unvisited neighbors, select the neighbor linked by smallest weight
             neighbor = unvisited_neighbors[np.argmin(vertex_weights_edges[unvisited_neighbors])]
             return neighbor
+
         return None
 
 
     def shortest_path(self, start_vertex: int, target_vertex: int) -> list[int]:
         """
-        Determine shortest path between start_vertex and target_vertex using Dijkstra algorithm.
+        Determine the shortest path between start_vertex and target_vertex using Dijkstra algorithm.
 
         Parameters
         ----------
@@ -108,57 +110,102 @@ class Graph:
         list[int]
             path from start_vertex to target_vertex with lowest weight
         """
+        # initialization of distances
         distances = {v: float('infinity') for v in range(len(self.vertices))}
         distances[start_vertex] = 0
-        priority_queue = [(0, start_vertex)]
+
+        # initialization of the queue of vertices to explore
+        queue = [(0, start_vertex)]
         previous_vertices = {v: None for v in range(len(self.vertices))}
 
-        while priority_queue:
-            current_distance, current_vertex = heapq.heappop(priority_queue)
-            
+        while queue:
+            current_distance, current_vertex = heapq.heappop(queue)
+
             if current_distance > distances[current_vertex]:
                 continue
-            
+
+            # explore neighbors of current_vertex
             for neighbor in range(len(self.weights_matrix[current_vertex])):
                 weight = self.weights_matrix[current_vertex][neighbor]
-                if weight > 0:  # Si une arête existe
+                if weight > 0:  # if a edge exists
                     distance = current_distance + weight
                     if distance < distances[neighbor]:
+                        # actualize distances and path to go to the neighbor
                         distances[neighbor] = distance
                         previous_vertices[neighbor] = current_vertex
-                        heapq.heappush(priority_queue, (distance, neighbor))
-        
-        # Reconstruire le chemin à partir du sommet cible
+                        # update queue
+                        heapq.heappush(queue, (distance, neighbor))
+
+        # get the path to go to target_vertex
         path = []
         while target_vertex is not None:
             path.append(target_vertex)
             target_vertex = previous_vertices[target_vertex]
         path.reverse()
-        return path if distances[path[-1]] != float('infinity') else []
-    
 
-    def get_path(self):
+        return path if distances[path[-1]] != float('infinity') else []
+
+
+    def is_connected(self) -> bool:
         """
+        Verify that all the vertices are connected. If it is not, we can't find a path that cover every edge !
+
+        Returns
+        -------
+        bool
+            True if graph is connected, False else.
+        """
+        start_vertex = 0
+        visited = set()
+        stack = [start_vertex]
+
+        # DFS
+        while stack:
+            vertex = stack.pop()
+            if vertex not in visited:
+                visited.add(vertex)
+                # Add unvisited neighbors to stack
+                for neighbor in range(len(self.weights_matrix[vertex])):
+                    if self.weights_matrix[vertex][neighbor] > 0 and neighbor not in visited:
+                        stack.append(neighbor)
+
+        # If all vertices are covered, graph is connex, else it's not
+        return len(visited) == len(self.vertices)
+
+
+    def get_path(self) -> tuple[list[int], int]:
+        """
+        Find a path that cover all edges of the graph.
+
+        Returns
+        -------
+        tuple[list[int], int]
+            list of vertices in the order of the path, cost of the path.
         """
         # choose the first vertex
         vertex = self.select_vertex_max_edges()
         # initialize path and path_cost
         path = [vertex]
-        path_cost = 0
+        path_cost = int(0)
+
         while len(self.visited_edges)<len(self.edges_ids):
             # while every edges haven't been visited, extend the path
+
             neighbor = self.get_nearest_neighbor(vertex)
+
             if neighbor:
-                # if vertex has neighbors with unvisited edge, go to nearest neighbor
+                # if current vertex has neighbors with unvisited edge, go to nearest unvisited neighbor
                 path.append(neighbor) # actualize path
                 path_cost += self.weights_matrix[vertex, neighbor] # actualize path_cost
                 self.visited_edges.append((vertex, neighbor)) # actualize visited edges
                 vertex = neighbor # actualize current vertex
+
             else:
                 # if vertex has no neighbors with unvisited edge, select an unvisited edge and go there
                 unvisited_edges = [(u, v) for u, v in self.edges_ids
                                           if (u, v) not in self.visited_edges
                                             and (v, u) not in self.visited_edges]
+
                 if unvisited_edges:
                     # choose aleatorly an unvisited edge
                     # TO DO : determine how to choose judiciously the next edge to visit
@@ -178,9 +225,10 @@ class Graph:
                                 # if the edge hasn't been visited, add it to visited_edges
                                 self.visited_edges.append((shortest_path_to_target_vertex[i], shortest_path_to_target_vertex[i + 1]))
                         vertex = shortest_path_to_target_vertex[-1]
+                    else:
+                        continue
 
                 else:
                     break
 
-        return path, path_cost
-
+        return path, int(path_cost)
