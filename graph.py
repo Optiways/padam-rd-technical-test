@@ -36,7 +36,6 @@ class Graph:
 
         # Solution path
         self.path = None
-        self.silly_path = None
 
         # For connectivity
         self.adj_list = None
@@ -87,7 +86,7 @@ class Graph:
         else:
             i = 1
             for adj_list in self.adj_lists:
-                print("Adjacency List: %d" + i)
+                print("Adjacency List: %d" + str(i))
                 for vertex, neighbors in adj_list.items():
                     print(f"Vertex {vertex}: {sorted(neighbors)}")
                 i+=1
@@ -172,40 +171,39 @@ class Graph:
         if not self.edges:
             return []
 
-        edges_to_visit = self.edges[:]       # edges to visit list
-        self.silly_path = []                            # crossed edges list
+        # Copy  the adjacency list and initialize the path
+        adj_list= {vertex: neighbors.copy() for vertex, neighbors in self.adj_list.items()}
+        self.path = []  # List of edges that form the path
+        visited_edges = set()  # To keep track of visited edges
 
-        current_edge = edges_to_visit.pop(0) # Visit the first edge in the list
-        self.silly_path.append(current_edge)
-
-        v1, v2, weight, coord1, coord2 = current_edge
-        self.logger.debug(
-            "Starting with edge: from vertex %d to vertex %d with weight %.2f: Coordinates (%f, %f) -> (%f, %f)",
-            v1, v2, weight, coord1[0], coord1[1], coord2[0], coord2[1])
-
-        current_vertex = v1  # Start from the first vertex of the first edge
+        current_vertex = 0 # Start with first vertex
+        visited_vertices = set()
 
         # Continue until all edges are visited
-        while edges_to_visit:
-            for i, edge in enumerate(edges_to_visit):
-                vertex1, vertex2, _, _, _ = edge
-                # We traverse an edge if one of its vertices matches the current vertex
-                if vertex1 == current_vertex:
-                    self.silly_path.append(edge)
-                    current_vertex = vertex2
-                    #logging
-                    v1, v2, weight, coord1, coord2 = edge
-                    self.logger.debug("New edge: from vertex %d to vertex %d with weight %.2f: Coordinates (%f, %f) -> (%f, %f)",
-                        v1, v2, weight, coord1[0], coord1[1], coord2[0], coord2[1])
-                    break
-                elif vertex2 == current_vertex:
-                    self.silly_path.append(edge)
-                    current_vertex = vertex1
-                    #logging
-                    v1, v2, weight, coord1, coord2 = edge
-                    self.logger.debug("New edge: from vertex %d to vertex %d with weight %.2f: Coordinates (%f, %f) -> (%f, %f)",
-                        v1, v2, weight, coord1[0], coord1[1], coord2[0], coord2[1])
+        while len(visited_edges) < len(self.edges):
+            # Explore all neighbors of the current vertex
+            for neighbor in list(adj_list[current_vertex]):
+                # Make sure not to re-traverse the same edge
+                edge = (min(current_vertex, neighbor), max(current_vertex, neighbor))
+                if edge not in visited_edges:
+                    # Add the edge to the path
+                    self.path.append((current_vertex, neighbor))
+                    visited_edges.add(edge)
+                    visited_vertices.add(current_vertex)
+                    visited_vertices.add(neighbor)
+
+                    # Remove the edge from the adjacency list (to avoid revisiting)
+                    adj_list[current_vertex].remove(neighbor)
+                    adj_list[neighbor].remove(current_vertex)
+
+                    # Move to the neighbor
+                    current_vertex = neighbor
                     break
             else:
+                # If no more unvisited edges, break the loop (all edges are visited)
                 self.logger.info("All edges have been traversed.")
                 break
+
+        self.logger.info("Leaving silly_path.")
+        return self.path
+
