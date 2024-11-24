@@ -2,6 +2,7 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 
+import logging
 
 class Graph:
     def __init__(self, vertices: list[tuple], edges: list[tuple]):
@@ -15,6 +16,16 @@ class Graph:
         """
         self.vertices = vertices
         self.edges = edges
+
+        #Logger configuration
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+
+        self.logger.info("Graph initialized with %d vertices and %d edges.", len(vertices), len(edges))
 
     def plot(self):
         """
