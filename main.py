@@ -5,8 +5,16 @@ from graph import Graph
 def main():
     in_file, plot_graph = parse_cmd_line()
     vertices, edges = parse_file(in_file)
-    print(f"#E={len(edges)}, #V={len(vertices)}")
     graph = Graph(vertices, edges)
+
+    silly_path = graph.silly_path()
+
+    graph.print_adj_list()
+    print(f"Path traversed: {silly_path}")
+    print(f"Path weight: {graph.path_weight}")
+
+    graph.checker()
+
     if plot_graph:
         graph.plot()
 
