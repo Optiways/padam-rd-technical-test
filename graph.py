@@ -1,6 +1,13 @@
 from __future__ import annotations
+
+from enum import nonmember
+
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
+
+## Solve some recursion issues
+import sys
+sys.setrecursionlimit(5000)
 
 import logging
 
@@ -28,8 +35,13 @@ class Graph:
         self.logger.info("Graph initialized with %d vertices and %d edges.", len(vertices), len(edges))
 
         # Solution path
-        self.path = []
-        self._silly_path = None
+        self.path = None
+        self.silly_path = None
+
+        # For connectivity
+        self.adj_list = None
+        self.build_adj_list()
+        self.is_connect = self.is_connected()
 
     def plot(self):
         """
@@ -45,6 +57,61 @@ class Graph:
         ax.legend()
         plt.title(f"#E={len(self.edges)}, #V={len(self.vertices)}")
         plt.show()
+
+    def build_adj_list(self):
+        """
+        Build an adjacency list representation of the graph.
+
+        Returns
+        -------
+        dict
+            A dictionary where keys are vertex ids and values are sets of adjacent vertex ids.
+        """
+        self.logger.info("Building a adjacency list.")
+        self.adj_list = {i: set() for i in range(len(self.vertices))}
+        for edge in self.edges:
+            v1, v2, _, _, _ = edge
+            self.adj_list[v1].add(v2)
+            self.adj_list[v2].add(v1)  # Since the graph is undirected
+        self.logger.info("Adjacency list built. Leaving build_adj_list")
+        return self.adj_list
+
+    def print_adj_list(self):
+        """
+        Prints the adjacency list of the graph.
+        """
+        print("Adjacency List:")
+        for vertex, neighbors in self.adj_list.items():
+            print(f"Vertex {vertex}: {sorted(neighbors)}")
+
+    def is_connected(self):
+        """
+        Check if the graph is connected.
+
+        Returns
+        -------
+        bool
+            True if the graph is connected, False otherwise.
+        """
+        self.logger.info("Checking if the graph is connected.")
+        visited = set()
+
+        def dfs(vertex):
+            """Recursive depth-first search to visit all reachable vertices."""
+            visited.add(vertex)
+            for neighbor in self.adj_list[vertex]:
+                if neighbor not in visited:
+                    dfs(neighbor)
+
+        dfs(0) # Start DFS from vertex 0
+
+        # If the number of visited vertices equals the total number of vertices, the graph is connected
+        if len(visited) == len(self.vertices):
+            self.logger.info("The graph is connected. Leaving is_connected.")
+            self.is_connect = True
+        else:
+            self.logger.info("The graph is not connected. Leaving is_connected.")
+            self.is_connect = False
 
     def print_silly_path(self):
         """

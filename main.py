@@ -9,9 +9,6 @@ def main():
     if plot_graph:
         graph.plot()
 
-    graph.silly_path()
-    graph.print_silly_path()
-
 
 if __name__ == "__main__":
     main()
