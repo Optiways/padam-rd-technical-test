@@ -86,32 +86,50 @@ class Graph:
 
     def is_connected(self):
         """
-        Check if the graph is connected.
+        Check if the graph is connected. If not, return the connected components.
 
         Returns
         -------
         bool
             True if the graph is connected, False otherwise.
+        list[dict]
+            A list of connected components' adjacency lists if the graph is not connected.
         """
         self.logger.info("Checking if the graph is connected.")
-        visited = set()
+        adj_list = self.build_adj_list()
+        visited = [False] * len(self.vertices)  # List to track visited vertices
+        connected_components = []  # List to store connected components' adjacency lists
 
-        def dfs(vertex):
-            """Recursive depth-first search to visit all reachable vertices."""
-            visited.add(vertex)
-            for neighbor in self.adj_list[vertex]:
-                if neighbor not in visited:
-                    dfs(neighbor)
+        def dfs(vertex, component_vertices):
+            """Recursive DFS function to visit all vertices in the same component."""
+            visited[vertex] = True
+            component_vertices.append(vertex)
+            for neighbor in adj_list[vertex]:
+                if not visited[neighbor]:
+                    dfs(neighbor, component_vertices)
 
-        dfs(0) # Start DFS from vertex 0
+        # Perform DFS starting from each vertex
+        for vertex in range(len(self.vertices)):
+            if not visited[vertex]:
+                component_vertices = []
+                dfs(vertex, component_vertices)
+                # Now we have the list of vertices for the current component
+                component_adj_list = {v: set() for v in component_vertices}
+                for edge in self.edges:
+                    v1, v2, _, _, _ = edge
+                    # Add the edge if both vertices are in the current component
+                    if v1 in component_vertices and v2 in component_vertices:
+                        component_adj_list[v1].add(v2)
+                        component_adj_list[v2].add(v1)
+                connected_components.append(component_adj_list)
 
-        # If the number of visited vertices equals the total number of vertices, the graph is connected
-        if len(visited) == len(self.vertices):
+        # If all vertices were visited in a single DFS, the graph is connected
+        if len(connected_components) == 1:
             self.logger.info("The graph is connected. Leaving is_connected.")
-            self.is_connect = True
+            return True, None
         else:
-            self.logger.info("The graph is not connected. Leaving is_connected.")
-            self.is_connect = False
+            self.logger.info("The graph is not connected. Returning connected components.")
+            return False, connected_components
 
     def print_silly_path(self):
         """
