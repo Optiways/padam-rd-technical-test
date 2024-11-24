@@ -35,12 +35,14 @@ class Graph:
         self.logger.info("Graph initialized with %d vertices and %d edges.", len(vertices), len(edges))
 
         # Solution path
-        self.path = None
+        self.path_list = None
 
         # For connectivity
         self.adj_list = None
         self.build_adj_list()
         self.is_connect, self.adj_lists = self.is_connected()
+
+        self.path_weight = 0
 
     def plot(self):
         """
@@ -86,7 +88,7 @@ class Graph:
         else:
             i = 1
             for adj_list in self.adj_lists:
-                print("Adjacency List: %d" + str(i))
+                print("Adjacency List: " + str(i))
                 for vertex, neighbors in adj_list.items():
                     print(f"Vertex {vertex}: {sorted(neighbors)}")
                 i+=1
@@ -147,63 +149,147 @@ class Graph:
         path : list[tuple]
             Liste des arêtes parcourues sous forme de tuples (vertex1, vertex2, weight, coord1, coord2).
         """
-        if not self.silly_path:
+        if not self.path:
             print("Le chemin est vide.")
             return
 
         print("Chemin parcouru (listes d'arêtes) :\n")
-        for idx, edge in enumerate(self.silly_path):
+        for idx, edge in enumerate(self.path):
             vertex1, vertex2, weight, coord1, coord2 = edge
             print(f"Arête {idx + 1}: {vertex1} -> {vertex2} avec poids {weight:.2f}")
             print(f"   Coordonnées : ({coord1[0]}, {coord1[1]}) -> ({coord2[0]}, {coord2[1]})")
 
+    def get_edge_weight(self, edge):
+        """
+        Returns the weight of the edge given by the tuple (u, v).
+        """
+        u, v = edge
+        for e in self.edges:
+            if (e[0] == u and e[1] == v) or (e[0] == v and e[1] == u):
+                return e[2]
+        return None
+
     def silly_path(self):
         """
-        Create a path in the simplest and most straightforward way.
+        Create paths using a stupid approach, visiting all edges at least once.
+        Handles both connected and non-connected graphs.
 
         Returns
         -------
         list[list[tuple]]
-            List of lists of edges, one list for each connected component.
+            A list of paths, one for each connected component.
+            Each path is a list of edges traversed.
         """
         self.logger.info("Entering silly_path.")
 
-        if not self.edges:
-            return []
+        # Vérifier si le graphe est connexe ou non
+        adj_lists = self.adj_lists if self.adj_lists is not None else [self.adj_list]
+        self.path_list = []
 
-        # Copy  the adjacency list and initialize the path
-        adj_list= {vertex: neighbors.copy() for vertex, neighbors in self.adj_list.items()}
-        self.path = []  # List of edges that form the path
-        visited_edges = set()  # To keep track of visited edges
+        def find_unvisited_edge():
+            """
+            Find the nearest unvisited edge in this component.
+            Returns a tuple (path_to_vertex, unvisited_edge), or (None, None) if no such edge exists.
+            """
+            queue = [(current_vertex, [])]  # (vertex, path to that vertex)
+            visited_vertices = set()
 
-        current_vertex = 0 # Start with first vertex
-        visited_vertices = set()
+            while queue:
+                vertex, path = queue.pop(0)
+                visited_vertices.add(vertex)
 
-        # Continue until all edges are visited
-        while len(visited_edges) < len(self.edges):
-            # Explore all neighbors of the current vertex
-            for neighbor in list(adj_list[current_vertex]):
-                # Make sure not to re-traverse the same edge
-                edge = (min(current_vertex, neighbor), max(current_vertex, neighbor))
-                if edge not in visited_edges:
-                    # Add the edge to the path
-                    self.path.append((current_vertex, neighbor))
-                    visited_edges.add(edge)
-                    visited_vertices.add(current_vertex)
-                    visited_vertices.add(neighbor)
+                # Check if this vertex has an unvisited edge
+                for neighbor in adj_list[vertex]:
+                    edge = tuple(sorted((vertex, neighbor)))
+                    if edge not in visited_edges:
+                        return path + [vertex], (vertex, neighbor)
 
-                    # Remove the edge from the adjacency list (to avoid revisiting)
-                    adj_list[current_vertex].remove(neighbor)
-                    adj_list[neighbor].remove(current_vertex)
+                # Add neighbors to explore further
+                for neighbor in adj_list[vertex]:
+                    if neighbor not in visited_vertices:
+                        queue.append((neighbor, path + [vertex]))
 
-                    # Move to the neighbor
-                    current_vertex = neighbor
-                    break
-            else:
-                # If no more unvisited edges, break the loop (all edges are visited)
-                self.logger.info("All edges have been traversed.")
-                break
+            return None, None
+
+        # Looping for each connected component
+        for component_id, adj_list in enumerate(adj_lists):
+            self.logger.info(f"Processing connected component {component_id + 1}/{len(adj_lists)}.")
+
+            # Initialization
+            path = []
+            visited_edges = set()
+            current_vertex = next(iter(adj_list))
+            total_edges = sum(len(neighbors) for neighbors in adj_list.values()) // 2
+
+            self.logger.debug(f"Starting at vertex {current_vertex} in component {component_id + 1}.")
+
+
+
+            # Create path in this component
+            while len(visited_edges) < total_edges:
+                possible_edges = []
+
+                # Find unvisited edges from this vertex
+                for neighbor in adj_list[current_vertex]:
+                    edge = tuple(sorted((current_vertex, neighbor)))
+                    if edge not in visited_edges:
+                        possible_edges.append((neighbor, edge))
+
+                if not possible_edges:  # No unvisited edge available
+                    self.logger.debug(
+                        f"No new unvisited edges from vertex {current_vertex}. Finding a path to an unvisited edge."
+                    )
+
+                    # Find a path onto an unvisited vertex
+                    path_to_unvisited, unvisited_edge = find_unvisited_edge()
+                    if not unvisited_edge:
+                        self.logger.error(f"No unvisited edges found in component {component_id + 1}.")
+                        break
+
+                    # Add the path to go to the unvisited vertex
+                    for i in range(len(path_to_unvisited) - 1):
+                        u, v = path_to_unvisited[i], path_to_unvisited[i + 1]
+                        edge = tuple(sorted((u, v)))
+                        path.append(edge)  # Add already visited edge to the path
+                        self.path_weight += self.get_edge_weight(edge)
+                        visited_edges.add(edge)
+                        self.logger.debug(f"Revisiting edge: {edge} to reach unvisited edge.")
+
+                    # Go to unvisited edge's vertex
+                    current_vertex = unvisited_edge[0]
+                    continue
+
+                # Take the lightest edge between all
+                neighbor, edge = min(possible_edges, key=lambda x: self.get_edge_weight(x[1]))
+                path.append(edge)
+                self.path_weight += self.get_edge_weight(edge)
+                visited_edges.add(edge)
+
+                # Go to neighbor
+                current_vertex = neighbor
+                self.logger.debug(f"Traversed edge: {edge}, moved to vertex {neighbor}.")
+
+            # Add the path to the path list (for unconnected graph, the list is > 1 path)
+            self.path_list.append(path)
+            self.logger.info(f"Finished processing component {component_id + 1}. Path length: {len(path)} edges.")
 
         self.logger.info("Leaving silly_path.")
-        return self.path
+        return self.path_list
 
+    def checker(self):
+        left_edges = []
+        for edge in self.edges:
+            left_edges.append((edge[0], edge[1]))
+        for path in self.path_list:
+            for edge in path:
+                if edge in left_edges:
+                    left_edges.remove(edge)
+                elif edge[::-1] in left_edges:
+                    left_edges.remove(edge[::-1])
+
+
+        if len(left_edges) == 0:
+            self.logger.info("The checker says, all edges are visited")
+        else:
+            self.logger.error("The checker says, all edges are NOT visited")
+            print(left_edges)

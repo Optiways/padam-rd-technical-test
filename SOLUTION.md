@@ -29,3 +29,12 @@ To make better progress on this problem, it's better to use an adjacency list. T
 By looking at the adjacency list, we quickly realize that in "hard to choose," all the vertices are connected to each other. Similarly, for "islands," all vertices are connected in two separate subgraphs (from vertex 0 to 19, from vertex 20 to 39, from vertex 40 to 59).  
 
 Thus, we quickly realize the importance of considering the weight of the edges when traversing them. The silly_path will be updated accordingly.
+
+## Update of the Approach to Consider Edge Weights and Graph Non-Connectivity
+
+In this section, we will update our silly_path to account for the possibility of having multiple adjacency lists. We also need to update it so that it does not stop as soon as there are no more unvisited edges from the current vertex.
+
+We will also modify the method so that when multiple edges are available, it chooses the lightest edge.
+
+I encountered some difficulties (and so wasted a lot of time) in finding the closest edge in the neighborhood. A function has been added to the method to find a path to the nearest vertex that still has unvisited edges.
+
