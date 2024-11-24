@@ -21,3 +21,6 @@ A second issue would be related to the non-connectivity of the graph. We will th
 
 First, let's define a method to determine if the graph is connected. Then, for each connected component, we can apply our silly_path.
 To determine if the graph is connected, we need to define a Depth-First Search (DFS) algorithm. We will use this algorithm to count the vertices accessible starting from a given vertex. If the number of accessible vertices is equal to the total number of vertices, then the graph is connected.
+
+To make better progress on this problem, it's better to use an adjacency list. Thus, the build_adj_list method has been created.
+

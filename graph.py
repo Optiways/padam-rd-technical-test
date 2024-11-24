@@ -41,7 +41,7 @@ class Graph:
         # For connectivity
         self.adj_list = None
         self.build_adj_list()
-        self.is_connect = self.is_connected()
+        self.is_connect, self.adj_lists = self.is_connected()
 
     def plot(self):
         """
@@ -80,9 +80,17 @@ class Graph:
         """
         Prints the adjacency list of the graph.
         """
-        print("Adjacency List:")
-        for vertex, neighbors in self.adj_list.items():
-            print(f"Vertex {vertex}: {sorted(neighbors)}")
+        if self.adj_lists is None:
+            print("Adjacency List:")
+            for vertex, neighbors in self.adj_list.items():
+                print(f"Vertex {vertex}: {sorted(neighbors)}")
+        else:
+            i = 1
+            for adj_list in self.adj_lists:
+                print("Adjacency List: %d" + i)
+                for vertex, neighbors in adj_list.items():
+                    print(f"Vertex {vertex}: {sorted(neighbors)}")
+                i+=1
 
     def is_connected(self):
         """
@@ -128,7 +136,7 @@ class Graph:
             self.logger.info("The graph is connected. Leaving is_connected.")
             return True, None
         else:
-            self.logger.info("The graph is not connected. Returning connected components.")
+            self.logger.info("The graph is not connected. Returning connected components. Leaving is_connected.")
             return False, connected_components
 
     def print_silly_path(self):
