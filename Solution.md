@@ -4,7 +4,9 @@ Hello, Guillaume, Alban and Louis (or whichever one of you is reading this)! Thi
 
 # Files
 _I added most element of the solving as methods to the Graph class as they mostly work only with the graph themselves or subproduct of the graph which I could have added as items but did not do cause I simply forgot so they are variables in this solution. So most additions are in the graph.py.
+
 _I also added a computation.py where I defined the solver function which is called in main and does all the computations to obtain the problems solutions. In this file there is also a (very basic and quite unrefined one if I must say) check for subgraphs.
+
 _main.py only has the call to the the solver function and a bare display of results which would beneficiate of small plots (probably animated to be readable considering the number of edges).
 
 # Methodology
