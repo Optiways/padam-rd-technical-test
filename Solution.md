@@ -75,6 +75,7 @@ While True:
 # Improvements
 
 **Subgraph**
+
 The solution I used to identify subgraphs is not  generalized and definitely not optimal as it repeats computations.
 It is needed to change from an end check to a beginning exploration and create a subgraph class inheriting from the graph class and the subgraphs. They could even be variables of the graph object created from the datafile if we worked if several graphs at the same time to make everything clearer. 
 An example workflow could be: 
@@ -92,6 +93,7 @@ This would work for all graphs and not create issue like we would have here in u
 Talking about computation time...
 
 **Dijkstra**
+
 Dijkstra implementation is the simplest one possible and it is not optimal which can be easily understood considering it does not instantly solve the problem for the paris_map.txt file. 
 Main additions would be:
 1. Not bruteforcing the neighbors check but instead using assumption from previous step to process neighbors i.e., start with an empty Q and fill it with the other neighbors in order of closest to the vertex.
