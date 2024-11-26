@@ -14,7 +14,7 @@ def computing_time(func):
     return wrapper
 
 @computing_time
-def Solver(graph_init):
+def Graph_to_eulerian_circuit(graph_init):
     """
     Algorithm for the full resolution
     1. clean data
@@ -32,20 +32,19 @@ def Solver(graph_init):
         all_circuits dict[list(int)]: all circuits' paths (only one if graph is connected)
         all_total_weights dict[int]: all circuits' weights
     """
-    graph = copy(graph_init)  # copy of the initial graph we will likely destroy in the process 
-    number_of_graph=1  # number of subgraph we end up doing
-    graph.clean_data()  # remove duplicates from dataset
-    counter = 0  # Counter to filter out data used in previous subgraph
-    all_circuits = {}  # store all paths
-    all_total_weights = {}  # store all paths' weights
+    graph = copy(graph_init)                            # copy of the initial graph we will likely destroy in the process 
+    number_of_graph=1                                   # number of subgraph we end up doing
+    graph.clean_data()                                  # remove duplicates from dataset
+    displacement = 0                                    # displacement to filter out data used in previous subgraph
+    all_circuits = {}                                   # store all paths
+    all_total_weights = {}                              # store all paths' weights
 
 
     while True:
-        print(f"Graph number: {number_of_graph}")
         # Making sure things are empty when loop starts
         circuit = []
-        filt_edges = []  # filter for if the graph is disconnected
-        filt_vertices = []  # filter for if the graph is disconnected
+        filt_edges = []                                 # filter for if the graph is disconnected
+        filt_vertices = []                              # filter for if the graph is disconnected
         vertices_odd = {}
 
         vertices_odd = graph.get_odd_vertices()
@@ -57,39 +56,51 @@ def Solver(graph_init):
             pairs_to_add = graph.shortest_paths(vertices_odd)
             graph.add_edges(pairs_to_add)
 
+
+        # Compute circuit and weight
         circuit = graph.eulerian_circuit()
         total_weight = graph.circuit_weight(circuit)
+        # add to global dictionnaries in case there are multiple circuits (subgraphs)
         all_circuits[number_of_graph] = circuit
         all_total_weights[number_of_graph] = total_weight
 
-        filt_edges, filt_vertices = check_if_graph_disconnected(graph, circuit, counter)
+        # check for subgraphs and create potential filtered data
+        filt_edges, filt_vertices = check_if_graph_disconnected(graph, circuit, displacement)
 
+        """
+        Condition to end code or start a new circuit if the graph is disconnected
+        TODO: This is definitely not the best way to do the subgraph thing, should implement 
+        an algorithm to explore the graph beforehand and check for subgraphs
+        would allow for parallel computing and not do useless computations
+        """
         if not filt_edges:
-            print("a")
             print('Computation over')
             return all_circuits, all_total_weights
         else:
-            counter += (len(graph.vertices) - (len(filt_vertices)))
+            """
+            TODO: displacement variable ensures the program does not crash when we look at the new subgraph indexes with islands.txt,
+            but this only works since data are ordered. A more general method would be to do what is described line 72.
+            """
+            displacement += (len(graph.vertices) - (len(filt_vertices)))
             graph.edges = filt_edges
             graph.vertices = filt_vertices
             number_of_graph += 1
-
 
         if number_of_graph > 10000:
             print("Error:More than 10000 subgraphs seems weird here")
             exit()
 
-def check_if_graph_disconnected(graph, circuit, counter):
+def check_if_graph_disconnected(graph, circuit, displacement):
     """
     Checks if it needs to make another subgraph as graph is disconnected
-    and filters data to do so
+    and makes filtered data to do so
     Parameters:
         graph Graph class: 
             our full graph
         circuit list[int]:
             our Eulerian path
-        counter int: 
-            counter to match index of new graph
+        displacement int: 
+            displacement to match index of new graph
     Returns:
         filt_edges list[graph.edges[items]]:
             filter to remove previous subgraph from dataset (here graph.edges)
@@ -102,12 +113,14 @@ def check_if_graph_disconnected(graph, circuit, counter):
     for vertex in graph.edges:
         id1, id2, _, _, _ = vertex
 
+        # checks if vertices are in the circuit done juste before
         if id1 not in circuit and id2 not in circuit:
             filt_edges.append(vertex)
 
-            if graph.vertices[id1-counter] not in filt_vertices:
-                filt_vertices.append(graph.vertices[id1-counter])
-            if graph.vertices[id2-counter] not in filt_vertices:
-                filt_vertices.append(graph.vertices[id2-counter])
+            # filter for the vertices position
+            if graph.vertices[id1-displacement] not in filt_vertices:
+                filt_vertices.append(graph.vertices[id1-displacement])
+            if graph.vertices[id2-displacement] not in filt_vertices:
+                filt_vertices.append(graph.vertices[id2-displacement])
                 
     return filt_edges, filt_vertices

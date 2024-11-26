@@ -120,30 +120,31 @@ class Graph:
         pairs_to_add list[(int, int, int),...]:
             Pair of vertices to add to the graph with their weight
         """
-        dist = {} # list of shortest paths
-        adj = self.get_adjacent_vert() #Gget adjacent vertices for all vertex
+        dist = {}                                                               # list of shortest paths
+        adj = self.get_adjacent_vert()                                          # get adjacent vertices for all vertex
 
         for source in vertices_odd: 
             dist[source] = self.dijkstra(source, adj) # Use Dijkstra to compute the shortest paths
 
+
         #Greedy algorithm to track pairs with best weights
-        used = set()  # Set to track which vertices have been paired
-        pairs_to_add = []  # Initializing the output of pairs
-        while len(pairs_to_add) < len(adj)/2:  # while there are unpaired odd vertex
+        used = set()                                                            # Set to track which vertices have been paired
+        pairs_to_add = []                                                       # Initializing the output of pairs
+        while len(pairs_to_add) < len(adj)/2:                                   # while there are unpaired odd vertex
             for start_vert in vertices_odd:
                 if start_vert in used: 
                     continue
                 min_dist = 1e+2
                 best_vert = None
 
-                for match_vert, weight in adj[start_vert]:  # for each neighbor of the vertex
+                for match_vert, weight in adj[start_vert]:                      # for each neighbor of the vertex
                     if match_vert in used:
                         continue
-                    if weight < min_dist:  # choose the best one
-                        min_dist = weight
+                    if dist[start_vert][match_vert] < min_dist:                 # choose the best one
+                        min_dist = dist[start_vert][match_vert]
                         best_vert = match_vert
 
-                if best_vert is not None:  # add best pair to the list
+                if best_vert is not None:                                       # add best pair to the list
                         pairs_to_add.append((start_vert, best_vert, min_dist))
                         used.add(start_vert)
                         used.add(best_vert)
@@ -163,23 +164,24 @@ class Graph:
         dist : dict{int: int}
             shortest distances for all pairs from source
         """
-            
-        dist = {id: int(1e+2) for id in range(len(self.vertices))}
-        prev = {id: None for id in range(len(self.vertices))}
+        """
+        TODO: Did not implement priority queue, probably main reason we can't do paris_map.txt
+        Since it seems to be stuck on the dijkstra part 
+        """
+        
+        dist = {id: int(1e+2) for id in range(len(self.vertices))}  # Initial distances, 1e+2 is enough to be like infinite here
         Q = [id for id in range(len(self.vertices))]
         dist[source] = 0
 
-        while Q:
+        while Q:                                                    # main loop, goes to all vertices
             start_vect = min(Q, key=lambda vert: dist[vert])
             Q.remove(start_vect) 
             
-            for neighbor, weight in adj[start_vect]:
+            for neighbor, weight in adj[start_vect]:                # loop on neighbors still in Q
                 if neighbor in Q:
                     alt = dist[start_vect] +  weight
-                    if alt < dist[neighbor]:
+                    if alt < dist[neighbor]:                        # update neighbor if new best one
                         dist[neighbor] = alt
-                        prev[neighbor] = start_vect
-        
         return dist
     
     def add_edges(graph, pairs_to_add):
@@ -190,7 +192,7 @@ class Graph:
             
 ###################################################################################################
         """
-        COMPUTING PATH: Solve the problem for the (pseudo) Eulerian graph 
+        COMPUTING PATH: Solve the problem for the (pseudo) Eulerian graph
         TODO: Should format all this in different files and import to the class for readability
         """
 ###################################################################################################
@@ -203,22 +205,22 @@ class Graph:
             circuit list(int): The circuit we follow
         """
         adj = self.get_adjacent_vert()
-        circuit = []
+        circuit = []                                # eulerian path
         start_id, _, _, _, _ = self.edges[0]
-        stack = [start_id] #Start at 0 because it is convenient
+        stack = [start_id]                          #  start at first edge of our graph/subgraph
         
         # TODO: In some cases, there might be a more efficient start
         # there is probably a way to know this
 
-        while stack:
-            current = stack[-1]
+        while stack:                                # continue as long as there are vertices
+            current = stack[-1]                     # current vertex
 
-            if adj[current]: # check for neighbors
-                next, _ = adj[current].pop() # chose a neighbor and remove it
-                adj[next].remove((current, _))  # need to remove the edge that starts from the opposite vertex
-                stack.append(next)
+            if adj[current]:                        # check for neighbors
+                next, _ = adj[current].pop()        # chose a neighbor and remove it
+                adj[next].remove((current, _))      # need to also remove the edge in opposite direction in neighbor list
+                stack.append(next)                  # add the next vertex to the stack to keep going
             else:
-                circuit.append(stack.pop())
+                circuit.append(stack.pop())         # remove current edge if no neighbor and go back to previous vertex
         return circuit
 
     def circuit_weight(self, circuit):
@@ -232,9 +234,13 @@ class Graph:
             total_weight int: The total weight of the circuit
         """
         total_weight = 0
+        
+        #  Need a way to unpack the weight for each edge of the graph according to an edge's ids
+        #  Ordered the indexes with min max to prevent index error in following loop
         edge_map = {(min(id1, id2), max(id1, id2)): weight for id1, id2, weight, _, _ in self.edges}
         
         for i in range(len(circuit) - 1):
             id1, id2 = circuit[i], circuit[i + 1]
             total_weight += edge_map[(min(id1, id2), max(id1, id2))]
+
         return total_weight

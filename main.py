@@ -1,6 +1,6 @@
 from input import parse_cmd_line, parse_file
 from graph import Graph
-from computation import Solver
+from computation import Graph_to_eulerian_circuit
 
 
 def main():
@@ -11,16 +11,13 @@ def main():
     if plot_graph:
         graph.plot()
 
-    # Solver function running all preprocessing and computations to optain paths
-    print(range(len(graph.vertices)))
-    circuits, total_weights = Solver(graph)
-    print(range(len(graph.vertices)))
-    print(total_weights[1])
+    # Graph_to_eulerian_circuit solver function running all preprocessing and computations
+    circuits, total_weights = Graph_to_eulerian_circuit(graph)
     
     for x in total_weights:
         print(f" Subgraph: {x}")
         print(f"     Weight: {total_weights[x]}")
-        print(f"     Path: {circuits[x]}")
+        print(f"     Circuit: {circuits[x]}")
         print("----------------------------")
 
 if __name__ == "__main__":
