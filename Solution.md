@@ -29,14 +29,14 @@ This added three problems to the already existing graph problem:
 2. There were odd degree vertices
 3. Graph was not connected.
 
-1. Easy, just clean the data 
+	1. Easy, just clean the data 
 
-2. In the end, the approach I used was to make sure the graph allowed for an Eulerian or pseudo Eulerian path (if there are odd degree vertices) i.e., identify odd vertices, and then, if not:
+	2. In the end, the approach I used was to make sure the graph allowed for an Eulerian or pseudo Eulerian path (if there are odd degree vertices) i.e., identify odd vertices, and then, if not:
 	Use a dijkstra algorithm (actually had to use Wikipedia to remember how it worked since I only remembered the name of the algorithm) to compute the shortest path from each vertex to its neighbors.
 	Define the least costly pairs with a greedy algorithm.
 	Add the pairs to our graph giving an augmented graph with a pseudo Eulerian path.
 
-3. I settled here for simply looping on the solving process after removing the data from the previous path. The implementation is quite bare and actually only works since the data are ordered.
+	3. I settled here for simply looping on the solving process after removing the data from the previous path. The implementation is quite bare and actually only works since the data are ordered.
 
 **paris_map.txt**
 The program got stuck on dijkstra algorithm for around 1 minute so I just stopped it, I guess the dijkstra needs optimization.
