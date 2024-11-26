@@ -10,6 +10,8 @@ def main():
     if plot_graph:
         graph.plot()
 
+    path, total_distance = graph.get_optimal_path()
+    print(f"Optimal distance: {total_distance}")
 
 if __name__ == "__main__":
     main()
