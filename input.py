@@ -1,3 +1,9 @@
+#@Author: Padam Mobility
+# Modified by Marie Latil
+# Date: 2024-12-01
+# Description: Input functions to parse command line and input file
+# Job offer: R&D Engineer 
+
 from __future__ import annotations
 import argparse
 
@@ -22,8 +28,17 @@ def parse_cmd_line() -> tuple(str, bool):
         default=False,
         required=False,
     )
+    parser.add_argument(
+        "-c",
+        "--compute",
+        help="whether to compute the eulerian path",
+        action="store_true",
+        dest="compute_eulerian",
+        default=False,
+        required=False,
+    )
     args = parser.parse_args()
-    return args.in_file, args.plot_graph
+    return args.in_file, args.plot_graph, args.compute_eulerian
 
 
 def parse_file(file_name: str) -> tuple[list[tuple], list[tuple]]:

@@ -1,3 +1,6 @@
+#@Author: Padam Mobility
+# Job offer: R&D Engineer 
+
 from __future__ import annotations
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
@@ -22,7 +25,7 @@ class Graph:
         """
         weights = list(set(edge[2] for edge in self.edges))
         colors = plt.cm.get_cmap("viridis", len(weights))
-        _, ax = plt.subplots()
+        fig, ax = plt.subplots()
         for i, weight in enumerate(weights):
             lines = [[edge[-2][::-1], edge[-1][::-1]] for edge in self.edges if edge[2] == weight]
             ax.add_collection(LineCollection(lines, colors=colors(i), alpha=0.7, label=f"weight {weight}"))
