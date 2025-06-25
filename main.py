@@ -1,22 +1,17 @@
-from input import parse_cmd_line, parse_file
-from graph import Graph
-from example_solution import example_solution
+from src.input import parse_cmd_line, parse_file
+from src.solution import process_graph
+from src.graph import Graph
 
 
 def main():
-    in_file, plot_graph = parse_cmd_line()
+    in_file, plot_graph, solver = parse_cmd_line()
     vertices, edges = parse_file(in_file)
-    print(f"#E={len(edges)}, #V={len(vertices)}")
+
     graph = Graph(vertices, edges)
-
-    path = example_solution(graph)
-
-    print("Length of path found:", len(path) + 1)
-    print("Value of path found:", sum(edge[2] for edge in path))
-
-    if plot_graph:
-        graph.plot()
-        graph.display_path(path=path)
+    graphs = graph.extract_connected_subgraphs()
+    for i, g in enumerate(graphs):
+        print(f"\033[92m    Subgraph {i + 1} of {len(graphs)}\033[0m")
+        process_graph(g, plot_graph, solver)
 
 
 if __name__ == "__main__":

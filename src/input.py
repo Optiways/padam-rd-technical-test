@@ -2,7 +2,7 @@ from __future__ import annotations
 import argparse
 
 
-def parse_cmd_line() -> tuple(str, bool):
+def parse_cmd_line() -> tuple[str, bool, str]:
     """
     Parses command line from standard input.
 
@@ -12,7 +12,14 @@ def parse_cmd_line() -> tuple(str, bool):
         path to input graph file, whether to plot the graph.
     """
     parser = argparse.ArgumentParser("Padam R&D Test")
-    parser.add_argument("-i", "--in_file", help="path to graph txt file", dest="in_file", required=True)
+    parser.add_argument(
+        "-i",
+        "--in_file",
+        help="path to graph txt file",
+        dest="in_file",
+        required=True,
+    )
+
     parser.add_argument(
         "-p",
         "--plot",
@@ -22,8 +29,19 @@ def parse_cmd_line() -> tuple(str, bool):
         default=False,
         required=False,
     )
+
+    parser.add_argument(
+        "-s",
+        "--solver",
+        help="Chose which solver to use",
+        type=str,
+        dest="solver",
+        choices=["blossom", "heuristic"],
+        default="heuristic",
+    )
+
     args = parser.parse_args()
-    return args.in_file, args.plot_graph
+    return args.in_file, args.plot_graph, args.solver
 
 
 def parse_file(file_name: str) -> tuple[list[tuple], list[tuple]]:
@@ -54,6 +72,8 @@ def parse_file(file_name: str) -> tuple[list[tuple], list[tuple]]:
             weight = int(splitted_line[2])
             coordinates_1 = vertices[vertex_1]
             coordinates_2 = vertices[vertex_2]
-            edges.append((vertex_1, vertex_2, weight, coordinates_1, coordinates_2))
+            edges.append(
+                (vertex_1, vertex_2, weight, coordinates_1, coordinates_2)
+            )
 
     return vertices, edges
