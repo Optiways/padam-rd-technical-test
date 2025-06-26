@@ -30,7 +30,9 @@ For none Eulerian graph, the time limiting step is the pairing of odd vertices.
 Brute force computing distances with Dijstra's for every combination of odd vertices and brute force pair matching would give the best solution but at the cost of combinatorial time complexity.
 
 A workaround could be to heuristically predict distances between nodes combinations with an O(1) calculation such as Manhattan distance.
-Vertices are then greedily paired. The actual path is finally computed for the formed pairs with dijstra's.
+Vertices are then be greedily paired and the actual path is computed for the formed pairs with Dijstra's.
+Every obtained path except the longest can be added to G to make it semi-Eulerian.
+Before computing the final path, we see that if an edge appears more than twice in G if can be removed twice without changing the parity of any vertices and keeping every edge included, thus leaving the G semi-Eulerian. Such paths are thus removed.
 
 A second approach was implemented using PyMatching, a wrapper library of a C++ implementation of the sparse-blossom algorithm.
 It is state of the art for MWPM in the field of Quantum Error Correction.
@@ -53,11 +55,11 @@ At stage 6 all graphs are at least semi-eulerian. An Eulerian path can be found 
 | Edges       | 595            | 190          | 380        | 190          | 17958 | 17958         |
 | Odd nodes   | 20             | 20           | 0          | 20           | 7318  | 7318          |
 | Edge Weight | 1200           | 477          | 936        | 483          | 22924 | 22924         |
-| Path Weight | 1200           | 493          | 936        | 499          | 27925 | 31759         |
-| Path Length | 595            | 201          | 380        | 202          | 22219 | 24999         |
+| Path Weight | 1200           | 493          | 936        | 499          | 30108 | 27925         |
+| Path Length | 595            | 201          | 380        | 202          | 22608 | 22219         |
 | RunTime (s) | 0.677          | 0.697 (file) | 0.697 file | 0.697 (file) | 92.0  | 3.041         |
 
-## Improvement path
+|## Improvement path
 
 - Add tests
 - Add a graph generator for automated testing and benchmarking
