@@ -44,12 +44,6 @@ class Graph:
     def get_odd_vertices(self) -> list[int]:
         return [i for i, u in enumerate(self.adj_list) if len(u) % 2]
 
-    def add_paths(self, paths: list[list[Edge]]) -> None:
-        for path in paths:
-            for edge in path:
-                self.edges.append(self.edge_map[edge])
-        self.build_adjacency_list()
-
     def is_connected(self) -> bool:
         """Check full connectivity in graph using BFS search"""
         return self.extract_connected_vertices() == set(

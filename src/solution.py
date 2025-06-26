@@ -23,6 +23,7 @@ def process_graph(graph: Graph, plot_graph: bool, solver: str) -> None:
         print(
             f"{'Path Length:':<15}{len(path):<5} ({len(path) / len(graph.edges):.0%})"
         )
+
         if plot_graph:
             graph.plot()
             graph.display_path(path=path)
