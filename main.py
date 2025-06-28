@@ -1,7 +1,7 @@
 from input import parse_cmd_line, parse_file
 from graph import Graph
 from example_solution import example_solution
-
+from sol import sol
 
 def main():
     in_file, plot_graph = parse_cmd_line()
@@ -9,7 +9,7 @@ def main():
     print(f"#E={len(edges)}, #V={len(vertices)}")
     graph = Graph(vertices, edges)
 
-    path = example_solution(graph)
+    path = sol(graph)
 
     print("Length of path found:", len(path) + 1)
     print("Value of path found:", sum(edge[2] for edge in path))
